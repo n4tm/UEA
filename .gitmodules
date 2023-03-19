@@ -1,0 +1,3 @@
+[submodule "6periodo/so/process-scheduling"]
+	path = 6periodo/so/process-scheduling
+	url = https://github.com/n4tm/process-scheduling.git
