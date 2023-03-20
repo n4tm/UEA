@@ -1,6 +1,10 @@
 {
   "files.associations": {
     "page.h": "c",
-    "stdbool.h": "c"
+    "stdbool.h": "c",
+    "stdio.h": "c",
+    "bitmap_linked_list.h": "c",
+    "stdlib.h": "c",
+    "asprintf.h": "c"
   }
 }
