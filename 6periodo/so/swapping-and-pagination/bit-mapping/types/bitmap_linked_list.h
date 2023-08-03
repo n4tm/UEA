@@ -13,7 +13,6 @@ void init_bitmap_linked_list(bitmap_linked_list_t* bitmap_ll, const char* memory
   int digit_count = 1;
   mem_node_t* current;
   bool is_first_node = true;
-
   char current_digit = ' ';
   for (int i = 1; current_digit != '\0'; ++i) {
     current_digit = memory_sample[i];
@@ -47,9 +46,11 @@ void init_bitmap_linked_list(bitmap_linked_list_t* bitmap_ll, const char* memory
 
 void dispose_bitmap_linked_list(bitmap_linked_list_t* bitmap_ll) {
   mem_node_t* current = bitmap_ll->head;
+  mem_node_t* temp;
   while (current != NULL) {
-    free(current);
+    temp = current;
     current = current->next;
+    free(temp);
   }
   free(bitmap_ll);
 }
@@ -71,4 +72,5 @@ void print_bitmap_linked_list(bitmap_linked_list_t bitmap_ll) {
     current = current->next;
   } 
   printf("X\n\n");
+  printf("------------------------------------------------------------------------\n");
 }
