@@ -1,3 +1,6 @@
 [submodule "6periodo/so/process-scheduling"]
 	path = 6periodo/so/process-scheduling
 	url = https://github.com/n4tm/process-scheduling.git
+[submodule "7periodo/visao_computacional/super-mario-with-hand-inputs"]
+	path = 7periodo/visao_computacional/super-mario-with-hand-inputs
+	url = https://github.com/n4tm/super-mario-with-hand-inputs.git
