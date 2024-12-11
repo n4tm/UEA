@@ -11,7 +11,8 @@ namespace BryophytaClassifier.Controllers {
     public class PredictionController : ControllerBase {
         private readonly AppDbContext _dbContext;
         private readonly FileSystemWatcher _fileWatcher = new();
-        private const string ScriptResultsPath = "/home/script_results";
+        private const string ScriptResultsPath = "/model/script_results";
+        private const string ScriptPath = "/model/bryophyta_classifier.py";
 
         public PredictionController(AppDbContext dbContext) {
             _dbContext = dbContext;
@@ -53,7 +54,7 @@ namespace BryophytaClassifier.Controllers {
 
             _fileWatcher.Filter = resultFileName;
 
-            await Cli.Wrap("/home/python3.10")
+            await Cli.Wrap($"python {ScriptPath}")
                 .WithArguments([inputImgFullPath, resultFileFullPath])
                 .ExecuteAsync();
 
@@ -78,7 +79,7 @@ namespace BryophytaClassifier.Controllers {
 
         private static string CreatedImagePathFromByteArray(byte[] image) {
             var fileName = $"{image.Length}_{Guid.NewGuid()}.jpg";
-            var path = Path.Combine("/home/input_images", fileName);
+            var path = Path.Combine("/model/input_images", fileName);
             System.IO.File.WriteAllBytes(path, image);
             return path;
         }
