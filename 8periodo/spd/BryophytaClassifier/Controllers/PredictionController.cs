@@ -1,7 +1,6 @@
 ﻿using BryophytaClassifier.Database;
 using BryophytaClassifier.Models;
 using CliWrap;
-using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +9,12 @@ namespace BryophytaClassifier.Controllers {
     [ApiController]
     public class PredictionController : ControllerBase {
         private readonly AppDbContext _dbContext;
-        private readonly FileSystemWatcher _fileWatcher = new();
-        private const string ScriptResultsPath = "/model/script_results";
-        private const string ScriptPath = "/model/bryophyta_classifier.py";
+        private const string ScriptResultsPath = @"\model\script_results";
+        private const string ScriptPath = @"\model\bryophyta_classifier.py";
+        private static readonly string BasePath = Directory.GetCurrentDirectory();
 
         public PredictionController(AppDbContext dbContext) {
             _dbContext = dbContext;
-            _fileWatcher.Path = ScriptResultsPath;
         }
 
         [HttpGet("Get/{userId}")]
@@ -48,19 +46,20 @@ namespace BryophytaClassifier.Controllers {
             var inputImgFullPath = CreatedImagePathFromByteArray(image);
 
             var resultFileName = $"{userId}_{Guid.NewGuid()}_";
-
-            var resultFileFullPath = Path.Combine(ScriptResultsPath, resultFileName);
-            await using (System.IO.File.Create(resultFileFullPath)) { }
-
-            _fileWatcher.Filter = resultFileName;
-
-            await Cli.Wrap($"python {ScriptPath}")
-                .WithArguments([inputImgFullPath, resultFileFullPath])
+            
+            var resultFileFullPath = Path.Combine(BasePath + ScriptResultsPath, resultFileName);
+            
+            await using (System.IO.File.Create(resultFileFullPath)) {}
+            
+            await Cli.Wrap("python.exe")
+                .WithArguments([BasePath + ScriptPath, inputImgFullPath, resultFileFullPath])
                 .ExecuteAsync();
 
-            var resultFile = _fileWatcher.WaitForChanged(WatcherChangeTypes.Renamed, 1.Minutes());
+            var scriptResultsDirectory = new DirectoryInfo(BasePath + ScriptResultsPath);
             
-            var bryophytaCategoryInFileName = resultFile.Name![^1].ToString();
+            var resultFile = scriptResultsDirectory.GetFiles().First(f => f.Name.StartsWith(resultFileName));
+            
+            var bryophytaCategoryInFileName = resultFile.Name[^1].ToString();
 
             if (!Enum.TryParse<Prediction.BryophytaCategory>(bryophytaCategoryInFileName, out var bryophytaCategory)) {
                 return BadRequest();
@@ -79,7 +78,7 @@ namespace BryophytaClassifier.Controllers {
 
         private static string CreatedImagePathFromByteArray(byte[] image) {
             var fileName = $"{image.Length}_{Guid.NewGuid()}.jpg";
-            var path = Path.Combine("/model/input_images", fileName);
+            var path = Path.Combine(BasePath + @"\model\input_images", fileName);
             System.IO.File.WriteAllBytes(path, image);
             return path;
         }

@@ -5,6 +5,7 @@ import sys
 import timm
 import os
 from PIL import Image
+from pathlib import Path
 
 class BryophytaClassifier(nn.Module):
   def __init__(self, classes_count):
@@ -23,7 +24,8 @@ class BryophytaClassifier(nn.Module):
     return x
 
 model = BryophytaClassifier(classes_count=3)
-model.load_state_dict(torch.load('bryophyta_classifier_model.pt', weights_only=True, map_location=torch.device('cpu') ))
+current_path = Path(__file__).parent.absolute()
+model.load_state_dict(torch.load(f'{current_path}/bryophyta_classifier_model.pt', weights_only=True, map_location=torch.device('cpu') ))
 
 image_path = sys.argv[1]
 result_file_name = sys.argv[2]
@@ -37,6 +39,6 @@ transformed_img = test_transform(img).unsqueeze(0)
 model.eval()
 with torch.no_grad():
   output = model(transformed_img)
-  prediction = torch.argmax(output, dim=1).cpu().numpy()[0]
+  prediction = torch.argmax(output, dim=1).cpu().numpy()[0] + 1 # +1 because the classes are 1, 2 and 3
 
 os.rename(result_file_name, f'{result_file_name}{prediction}')
